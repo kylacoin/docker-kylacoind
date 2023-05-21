@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -ex
+
+# This shouldn't be in the Dockerfile or containers built from the same image
+# will have the same credentials.
+if [ ! -e "$HOME/.kylacoin/kylacoin.conf" ]; then
+    mkdir -p $HOME/.kylacoin
+
+    echo "Creating kylacoin.conf"
+
+    # Seed a random password for JSON RPC server
+    cat <<EOF > $HOME/.kylacoin/kylacoin.conf
+regtest=${REGTEST:-0}
+logips=${LOGIPS:-1}
+fallbackfee=${FALLBACKFEE:-0.0001}
+disablewallet=${DISABLEWALLET:-0}
+printtoconsole=${PRINTTOCONSOLE:-1}
+rpcuser=${RPCUSER:-kylacoinrpc}
+rpcpassword=${RPCPASSWORD:-`dd if=/dev/urandom bs=33 count=1 2>/dev/null | base64`}
+EOF
+
+fi
+
+cat $HOME/.kylacoin/kylacoin.conf
+
+echo "Initialization completed successfully"

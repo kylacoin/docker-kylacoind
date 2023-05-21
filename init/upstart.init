@@ -1,0 +1,15 @@
+# Copy to /etc/init/docker-kylacoind.conf
+description "Docker container for kylacoind p2p node"
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+pre-start script
+  # Clean-up if left behind
+  docker rm -f kylacoind-node || true
+  
+  # Attempt to always update and fail silently if the network isn't ready
+  docker pull kylacoin/kylacoind || true
+end script
+script
+  exec docker run --rm -v kylacoind-data:/kylacoin --name=kylacoind-node --rm -p 5111:5111 -p 127.0.0.1:5110:5110 kylacoin/kylacoind
+end script
